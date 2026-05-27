@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 420 160" height="160" width="420">
+  
+  <rect stroke-width="18" stroke="#1E40AF" fill="#F8FAFC" rx="15" height="280" width="220" y="30" x="60"></rect>
+  
+  
+  <path stroke-width="18" stroke="#1E40AF" fill="#E6EFF8" d="M280 30 L340 90 L280 90 Z"></path>
+  
+  
+  <text fill="#1E40AF" font-weight="900" font-size="58" font-family="Arial Black, sans-serif" y="125" x="130">PDF</text>
+  
+  
+  <text fill="#1E3A8A" font-weight="700" font-size="28" font-family="Arial Black, sans-serif" y="205" x="85">ANMAT</text>
+  
+  
+  <text fill="#64748B" font-weight="500" font-size="18" font-family="Arial, sans-serif" y="235" x="85">CONVERTER</text>
+  
+  
+  <rect fill="#3B82F6" rx="2" height="4" width="190" y="250" x="80"></rect>
+</svg>

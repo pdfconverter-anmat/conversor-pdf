@@ -1,0 +1,142 @@
+body {
+    font-family: "Roboto", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    background-color: #f5f5f5;
+    padding: 0px;
+    border-radius: 4px;
+    display: flex; 
+    flex-direction: column;
+    align-items: left;;
+}
+
+.preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin: 1px 0;
+}
+
+.preview-image {
+    max-width: 800px;
+    max-height: 700px;
+    object-fit: contain;
+    border: 1px solid #ddd;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    padding-left: 0px;
+}
+
+.logo-image {
+    width: 150px;
+    height: 50px;
+    object-fit: contain;
+}
+
+button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+button:hover {
+    background-color: var(--secondary-color);
+}
+button:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.drop-zone {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    margin: 20px 0;
+    background-color: #fafafa;
+}
+.drop-zone.dragover {
+    background-color: #e1e1e1;
+    border-color: #999;
+}
+
+.fileListContainer {
+    font-size: small;
+    /* max-height: 380px;           Altura máxima antes de hacer scroll */
+}
+
+table {
+    color: #495057;
+    font-size: 0.875rem;
+    padding: 0 px;
+}
+
+footer {
+    text-align: right;
+    color: #64748b;
+    font-size: 0.875rem;
+    padding-top: 0.5rem;
+    padding-right: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.list-group {
+    font-size: 0.875rem;
+    max-width: 100%;
+    max-height: 420px;           /* ← Ajusta según necesites (aprox 18-20 archivos) */
+    overflow-y: auto;            /* Scroll vertical */
+    overflow-x: hidden;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    scroll-behavior: smooth;
+}
+
+/* Estilos de los items (sin cambios importantes) */
+/* .list-group-item {
+    background-color: #f5f5f5;
+    color: #495057;
+    margin-bottom: 2px;
+    border-radius: 0.25rem;
+} */
+
+.list-group-item {
+    background-color: #f5f5f5;
+    color: #495057;
+    margin-bottom: 3px;
+    border-radius: 0.25rem;
+    border: 1px solid #dee2e6;
+    padding: 0.55rem 0.75rem !important;   /* ← Más alto y legible */
+    min-height: 25px;                      /* Altura mínima por ítem */
+    display: flex;
+    align-items: center;
+}
+
+.list-group-item:hover {
+    background-color: #495057;
+    color: #f5f5f5;
+}
+
+.file-list-item {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* Evita saltos de línea */
+    padding: 0.17rem; /* Espacio entre texto y botón */
+}
+
+.selectedFilesBody {
+    font-size: 0.83rem;
+}
