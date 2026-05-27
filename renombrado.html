@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Renombrador de Imágenes</title>
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="assets/devil.ico" />
+        <!-- Bootstrap icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/claude_rem.css" />
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+        integrity="sha384-L0XZBFD+a5R/Q+jXRJXW+YY6nKl+MBLAye9ktyaUBtVGzgUqd6RLzfYvnkfwyaJV"
+        crossorigin="anonymous"></script>
+
+    </head>
+
+    <body>
+        <div class="container">
+            <!-- NAV BAR -->
+            <div id="container-log" class="row d-block header-n">
+                <nav id="nav-log" class="navbar">
+                    <div id="header-img" class="container-fluid">
+                        <a class="navbar-brand" href="#">
+                            <img class="d-inline-block logo-image" src="img/pdf.svg" alt="Logo" width="" >
+                        </a>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Container -->
+            <div id="body-form" class="container-fluid">
+                <!-- ROW -->
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <input type="file" id="imageInput" accept=".jpg,.jpeg" multiple class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <!-- ROW Vista previa y nombre de archivos. -->
+                <div class="row">
+                    <div id="imagePreviewContainer" class="col-8">
+                        <img id="mainPreviewImage" src="" class="preview-image" style="display:none;">
+                    </div>
+                    <div id="fileListContainer" class="col-4">
+                        <div id="fileList" class="list-group"></div>
+                    </div>
+                </div>
+
+                <!-- ROW espacio para el cambio de nombre -->
+                <div class="row mt-2">
+                    <div class="col-8">
+                        <input type="text" id="newFileNameInput" class="form-control form-control-sm footer-txt"
+                            placeholder="Nuevo nombre del archivo">
+                    </div>
+                    <div class="col-4">
+                        <div class="btn-group w-100">
+                            <button id="saveButton" class="btn btn-outline-light text-info btn-sm"
+                                disabled>Guardar</button>
+                            <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#nameStructureModal">?</button> -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal para explicar estructura de nombre -->
+            <div class="modal fade" id="nameStructureModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Estructura del Nombre de Archivo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            Estructura esperada del nombre:
+
+                            1. Número de Disposición
+                            2. Año de Publicación
+                            3. Nombre del Laboratorio
+                            4. " - "
+                            5. Nombre del Trámite
+                            6. " - "
+                            7. Tipo de Trámite
+                            8. Extensión del Archivo
+
+                            Ejemplo:
+                            500 94 LAB. EXA S.A. - TRANSFIERE CERTIFICADO - PM.jpg
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer>
+                <div class="container">
+                    <div class="row" id="">
+                        <p class="mb-0 footer-rem"></p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+        <!-- Claude JS -->
+        <script src="js/claude_rem.js"></script>
+    </body>
+
+</html>
