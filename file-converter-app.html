@@ -9,20 +9,16 @@
 
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="assets/devil.ico" />
-        <!-- Opcional: Mejor UI vía CDN -->
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+        <!-- Bootstrap icons -->
+        <link href="css/bootstrap-icons.css" rel="stylesheet" />
 
         <!-- Bootstrap CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-            integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
         <!-- Claude CSS -->
         <link rel="stylesheet" href="css/claude_rem.css" />
 
         <!-- BootStrap JS -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
-        integrity="sha384-L0XZBFD+a5R/Q+jXRJXW+YY6nKl+MBLAye9ktyaUBtVGzgUqd6RLzfYvnkfwyaJV"
-        crossorigin="anonymous"></script>
+        <script src="js/bootstrap.min.js"></script>
 
     </head>
 
@@ -65,15 +61,16 @@
                         </div>
 
                         <div class="card-body">
-                            <div class="selectedFilesBody" id="selectedFilesTable">
-                                <div
-                                    style="display: flex; justify-content: space-between; padding: 2px 2px; font-weight: bold; border-bottom: 2px solid #444;">
-                                    <span style="flex: 2;">Nombre del Archivo</span>
-                                    <span style="flex: 1;">Número de Disposición</span>
-                                    <span>Acciones</span>
-                                </div>
-                                <div id="selectedFilesBody"></div>
+
+                            <!-- Encabezado de lista -->
+                            <div style="display: flex; align-items: center; padding: 4px 4px 6px; border-bottom: 2px solid #3a3a3a; font-weight: 600; font-size: 0.8rem;">
+                                <span style="flex: 1;">PDF Generado</span>
+                                <span style="width: 70px; text-align: center;">Acciones</span>
                             </div>
+
+                            <!-- Filas de archivos -->
+                            <div id="selectedFilesBody"></div>
+
                         </div>
                     </div>
 
@@ -106,9 +103,10 @@
 
         <script src="js/pdf-lib.min.js"></script>
         <script src="js/claude-file-converter.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-            crossorigin="anonymous"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+
+        <!-- Opcional: Mejor UI vía CDN -->
+        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" /> -->
     </body>
 
 </html>
