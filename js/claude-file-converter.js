@@ -106,14 +106,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedFiles.push({
                     file,
                     dispositionNumber: parsed.dispositionNumber,
+                    pdfName: parsed.pdfName,
                     improvedBytes
                 });
 
                 const row = document.createElement('div');
                 row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 3px 4px; border-bottom: 1px solid #2a2a2a;';
                 row.innerHTML = `
-                    <span style="flex: 2;">${file.name}</span>
-                    <span style="flex: 1;">${parsed.dispositionNumber}</span>
+                    <span style="flex: 1;">${parsed.pdfName}</span>
                     <button class="btn btn-sm btn-danger" onclick="removeFile('${file.name}')">Eliminar</button>
                 `;
                 selectedFilesBody.appendChild(row);
@@ -132,10 +132,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ==================== AUXILIARES ====================
 function parseFileName(filename) {
-    const regex = /^(\d+)\s+(\d+)\s+([^-]+)\s*-\s*([^-]+)\s*-\s*([^.]+)\.jpg$/i;
+    const regex = /^(\d+)\s+(\d+)\s+([^-]+?)\s*-\s*([^-]+?)\s*-\s*([^.]+?)\.jpg$/i;
     const match = filename.match(regex);
     if (!match) return null;
-    return { dispositionNumber: match[1] };
+
+    const toKey = str => str.trim().replace(/\s+/g, '_');
+
+    const dispo   = match[1].trim();
+    const anio    = match[2].trim();
+    const empresa = toKey(match[3]);
+    const tramite = toKey(match[4]);
+    const familia = toKey(match[5]);
+
+    const pdfName = `${dispo}-${anio}-${empresa}-${tramite}-${familia}`;
+
+    return {
+        dispositionNumber: dispo,
+        pdfName
+    };
 }
 
 function removeFile(filename) {
@@ -147,8 +161,7 @@ function removeFile(filename) {
         const row = document.createElement('div');
         row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 3px 4px; border-bottom: 1px solid #2a2a2a;';
         row.innerHTML = `
-            <span style="flex: 2;">${item.file.name}</span>
-            <span style="flex: 1;">${item.dispositionNumber}</span>
+            <span style="flex: 1;">${item.pdfName}</span>
             <button class="btn btn-sm btn-danger" onclick="removeFile('${item.file.name}')">Eliminar</button>
         `;
         tbody.appendChild(row);
@@ -161,7 +174,7 @@ async function convertToPDF() {
     if (selectedFiles.length === 0) return;
 
     const grouped = selectedFiles.reduce((acc, item) => {
-        const key = item.dispositionNumber;
+        const key = item.pdfName;
         if (!acc[key]) acc[key] = [];
         acc[key].push(item);
         return acc;
@@ -172,7 +185,6 @@ async function convertToPDF() {
     for (const key in grouped) {
         const group = grouped[key];
         const pdfDoc = await PDFLib.PDFDocument.create();
-        const baseName = group[0].file.name.replace(/\.jpg$/i, '');
 
         group.sort((a, b) => a.file.name.localeCompare(b.file.name));
 
@@ -192,7 +204,7 @@ async function convertToPDF() {
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `${baseName}.pdf`;
+        link.download = `${key}.pdf`;
         link.click();
     }
 
