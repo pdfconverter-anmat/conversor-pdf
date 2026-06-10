@@ -10,7 +10,7 @@ let currentImage = null;
 
 imageInput.addEventListener("change", e => {
 
-```
+
 currentImage = e.target.files[0];
 
 if(!currentImage){
@@ -27,13 +27,12 @@ reader.readAsDataURL(currentImage);
 
 detectedNumber.textContent = "-";
 ocrText.value = "";
-```
 
 });
 
 analyzeBtn.addEventListener("click", async () => {
 
-```
+
 if(!currentImage){
     alert("Seleccione una imagen");
     return;
@@ -121,6 +120,6 @@ img.onload = async () => {
 
     statusDiv.textContent = "OCR finalizado";
 };
-```
+
 
 });
