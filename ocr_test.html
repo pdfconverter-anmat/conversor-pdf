@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Disposición - Prueba</title>
+
+
+<link rel="stylesheet" href="css/ocr_test.css">
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+
+</head>
+
+<body>
+
+<div class="container">
+
+
+<h1>OCR Disposición</h1>
+
+<div class="toolbar">
+    <input type="file"
+           id="imageInput"
+           accept=".jpg,.jpeg,.png">
+
+    <button id="analyzeBtn">
+        Analizar
+    </button>
+</div>
+
+<div class="layout">
+
+    <div class="preview-panel">
+        <img id="previewImage">
+    </div>
+
+    <div class="result-panel">
+
+        <div class="card">
+            <h3>Número sugerido</h3>
+            <div id="detectedNumber">-</div>
+        </div>
+
+        <div class="card">
+            <h3>Estado</h3>
+            <div id="status">Esperando imagen...</div>
+        </div>
+
+        <div class="card">
+            <h3>Texto OCR</h3>
+            <textarea id="ocrText"></textarea>
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<script src="js/ocr_test.js"></script>
+
+</body>
+</html>
