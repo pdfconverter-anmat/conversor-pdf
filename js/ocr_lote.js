@@ -40,11 +40,14 @@ processBtn.addEventListener("click", async () => {
 
 
 if(selectedFiles.length === 0){
+
     alert("Seleccione archivos");
+
     return;
 }
 
 resultList.innerHTML = "";
+
 renamedFiles = [];
 
 const grupos = {};
@@ -61,22 +64,24 @@ for(const file of selectedFiles){
         if(!grupos[disposicion]){
 
             grupos[disposicion] = [];
-
         }
 
         grupos[disposicion].push(file);
 
     }
-    catch{
+    catch(error){
+
+        console.error(
+            file.name,
+            error
+        );
 
         if(!grupos["REVISAR"]){
 
             grupos["REVISAR"] = [];
-
         }
 
         grupos["REVISAR"].push(file);
-
     }
 
     procesados++;
@@ -138,7 +143,8 @@ async function detectarDisposicion(file){
 const dataUrl =
     await fileToDataURL(file);
 
-const img = new Image();
+const img =
+    new Image();
 
 img.src = dataUrl;
 
@@ -150,19 +156,26 @@ const canvas =
 const ctx =
     canvas.getContext("2d");
 
+/*
+ * Zona superior derecha
+ */
+
 const cropX =
-    img.width * 0.45;
+    img.width * 0.35;
 
 const cropY = 0;
 
 const cropWidth =
-    img.width * 0.55;
+    img.width * 0.65;
 
 const cropHeight =
-    img.height * 0.30;
+    img.height * 0.20;
 
-canvas.width = cropWidth;
-canvas.height = cropHeight;
+canvas.width =
+    cropWidth;
+
+canvas.height =
+    cropHeight;
 
 ctx.drawImage(
     img,
@@ -176,6 +189,46 @@ ctx.drawImage(
     cropHeight
 );
 
+/*
+ * Blanco y negro
+ */
+
+const imageData =
+    ctx.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+const data =
+    imageData.data;
+
+for(let i=0;i<data.length;i+=4){
+
+    const gray =
+        (
+            data[i] +
+            data[i+1] +
+            data[i+2]
+        ) / 3;
+
+    const value =
+        gray > 180
+        ? 255
+        : 0;
+
+    data[i] = value;
+    data[i+1] = value;
+    data[i+2] = value;
+}
+
+ctx.putImageData(
+    imageData,
+    0,
+    0
+);
+
 const result =
     await Tesseract.recognize(
         canvas,
@@ -183,18 +236,123 @@ const result =
     );
 
 const text =
-    result.data.text;
+    result.data.text || "";
 
-const numeros =
-    text.match(/\b\d{3,6}\b/g);
+console.log(
+    "OCR:",
+    text
+);
 
-if(numeros && numeros.length){
+return extraerDisposicion(text);
 
-    return numeros[0];
 
 }
 
-throw new Error();
+function extraerDisposicion(text){
+
+
+const lineas =
+    text.split(/\r?\n/);
+
+/*
+ * PRIORIDAD 1
+ */
+
+for(const linea of lineas){
+
+    const l =
+        linea.toUpperCase();
+
+    if(
+        l.includes("POSIC")
+        ||
+        l.includes("SPOSIC")
+    ){
+
+        const nums =
+            l.match(/\d{3,6}/g);
+
+        if(nums){
+
+            for(const n of nums){
+
+                if(
+                    esDisposicionValida(n)
+                ){
+
+                    return n;
+                }
+            }
+        }
+    }
+}
+
+/*
+ * PRIORIDAD 2
+ */
+
+const match =
+    text.match(
+        /(?:DISPOS|SPOSIC)[^\d]{0,20}(\d{3,6})/i
+    );
+
+if(
+    match &&
+    esDisposicionValida(match[1])
+){
+
+    return match[1];
+}
+
+/*
+ * PRIORIDAD 3
+ */
+
+const numeros =
+    text.match(/\d{3,6}/g);
+
+if(numeros){
+
+    for(const n of numeros){
+
+        if(
+            esDisposicionValida(n)
+        ){
+
+            return n;
+        }
+    }
+}
+
+throw new Error(
+    "Disposición no encontrada"
+);
+
+
+}
+
+function esDisposicionValida(n){
+
+
+const valor =
+    parseInt(
+        n,
+        10
+    );
+
+if(
+    valor >= 1900 &&
+    valor <= 2100
+){
+    return false;
+}
+
+if(valor < 100){
+
+    return false;
+}
+
+return true;
 
 
 }
@@ -202,7 +360,8 @@ throw new Error();
 downloadBtn.addEventListener("click", async () => {
 
 
-const zip = new JSZip();
+const zip =
+    new JSZip();
 
 for(const item of renamedFiles){
 
@@ -210,7 +369,6 @@ for(const item of renamedFiles){
         item.nuevoNombre,
         item.file
     );
-
 }
 
 const content =
@@ -229,19 +387,28 @@ saveAs(
 function fileToDataURL(file){
 
 
-return new Promise((resolve,reject)=>{
+return new Promise(
+    (
+        resolve,
+        reject
+    ) => {
 
-    const reader =
-        new FileReader();
+        const reader =
+            new FileReader();
 
-    reader.onload =
-        e => resolve(e.target.result);
+        reader.onload =
+            e => resolve(
+                e.target.result
+            );
 
-    reader.onerror = reject;
+        reader.onerror =
+            reject;
 
-    reader.readAsDataURL(file);
-
-});
+        reader.readAsDataURL(
+            file
+        );
+    }
+);
 
 
 }
