@@ -1,125 +1,247 @@
 const imageInput = document.getElementById("imageInput");
-const previewImage = document.getElementById("previewImage");
-const analyzeBtn = document.getElementById("analyzeBtn");
+const processBtn = document.getElementById("processBtn");
+const downloadBtn = document.getElementById("downloadBtn");
 
-const detectedNumber = document.getElementById("detectedNumber");
-const statusDiv = document.getElementById("status");
-const ocrText = document.getElementById("ocrText");
+const fileList = document.getElementById("fileList");
+const resultList = document.getElementById("resultList");
 
-let currentImage = null;
+const totalFiles = document.getElementById("totalFiles");
+const processedFiles = document.getElementById("processedFiles");
 
-imageInput.addEventListener("change", e => {
+const progressBar = document.getElementById("progressBar");
+
+let selectedFiles = [];
+let renamedFiles = [];
+
+imageInput.addEventListener("change", () => {
 
 
-currentImage = e.target.files[0];
+selectedFiles = Array.from(imageInput.files);
 
-if(!currentImage){
-    return;
-}
+totalFiles.textContent = selectedFiles.length;
 
-const reader = new FileReader();
+fileList.innerHTML = "";
 
-reader.onload = ev => {
-    previewImage.src = ev.target.result;
-};
+selectedFiles.forEach(file => {
 
-reader.readAsDataURL(currentImage);
+    const div = document.createElement("div");
 
-detectedNumber.textContent = "-";
-ocrText.value = "";
+    div.className = "item";
+    div.textContent = file.name;
+
+    fileList.appendChild(div);
 
 });
 
-analyzeBtn.addEventListener("click", async () => {
+
+});
+
+processBtn.addEventListener("click", async () => {
 
 
-if(!currentImage){
-    alert("Seleccione una imagen");
+if(selectedFiles.length === 0){
+    alert("Seleccione archivos");
     return;
 }
 
-statusDiv.textContent = "Preparando imagen...";
+resultList.innerHTML = "";
+renamedFiles = [];
+
+const grupos = {};
+
+let procesados = 0;
+
+for(const file of selectedFiles){
+
+    try{
+
+        const disposicion =
+            await detectarDisposicion(file);
+
+        if(!grupos[disposicion]){
+
+            grupos[disposicion] = [];
+
+        }
+
+        grupos[disposicion].push(file);
+
+    }
+    catch{
+
+        if(!grupos["REVISAR"]){
+
+            grupos["REVISAR"] = [];
+
+        }
+
+        grupos["REVISAR"].push(file);
+
+    }
+
+    procesados++;
+
+    processedFiles.textContent = procesados;
+
+    progressBar.style.width =
+        ((procesados / selectedFiles.length) * 100) + "%";
+}
+
+for(const disp in grupos){
+
+    let contador = 1;
+
+    for(const file of grupos[disp]){
+
+        const extension =
+            file.name.split(".").pop();
+
+        const nuevoNombre =
+            disp +
+            "_" +
+            String(contador).padStart(2,"0") +
+            "." +
+            extension;
+
+        renamedFiles.push({
+            file,
+            nuevoNombre
+        });
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            disp === "REVISAR"
+            ? "item error"
+            : "item ok";
+
+        div.textContent =
+            file.name +
+            " → " +
+            nuevoNombre;
+
+        resultList.appendChild(div);
+
+        contador++;
+    }
+}
+
+downloadBtn.disabled = false;
+
+
+});
+
+async function detectarDisposicion(file){
+
+
+const dataUrl =
+    await fileToDataURL(file);
 
 const img = new Image();
 
-img.src = previewImage.src;
+img.src = dataUrl;
 
-img.onload = async () => {
+await img.decode();
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+const canvas =
+    document.createElement("canvas");
 
-    /*
-     * Zona superior derecha:
-     * Ajustaremos estos valores después
-     * de probar con documentos reales.
-     */
+const ctx =
+    canvas.getContext("2d");
 
-    const cropX = img.width * 0.45;
-    const cropY = 0;
+const cropX =
+    img.width * 0.45;
 
-    const cropWidth = img.width * 0.55;
-    const cropHeight = img.height * 0.30;
+const cropY = 0;
 
-    canvas.width = cropWidth;
-    canvas.height = cropHeight;
+const cropWidth =
+    img.width * 0.55;
 
-    ctx.drawImage(
-        img,
-        cropX,
-        cropY,
-        cropWidth,
-        cropHeight,
-        0,
-        0,
-        cropWidth,
-        cropHeight
-    );
+const cropHeight =
+    img.height * 0.30;
 
-    statusDiv.textContent = "Ejecutando OCR...";
+canvas.width = cropWidth;
+canvas.height = cropHeight;
 
-    const result = await Tesseract.recognize(
+ctx.drawImage(
+    img,
+    cropX,
+    cropY,
+    cropWidth,
+    cropHeight,
+    0,
+    0,
+    cropWidth,
+    cropHeight
+);
+
+const result =
+    await Tesseract.recognize(
         canvas,
         "spa"
     );
 
-    const text = result.data.text;
+const text =
+    result.data.text;
 
-    ocrText.value = text;
+const numeros =
+    text.match(/\b\d{3,6}\b/g);
 
-    let numero = null;
+if(numeros && numeros.length){
 
-    const patronDisposicion =
-        /DISPOSIC(?:ION|IÓN)\s*N[°ºo]?\s*(\d{3,6})/i;
+    return numeros[0];
 
-    const match = text.match(patronDisposicion);
+}
 
-    if(match){
-        numero = match[1];
-    }
+throw new Error();
 
-    if(!numero){
 
-        const numeros =
-            text.match(/\b\d{3,6}\b/g);
+}
 
-        if(numeros && numeros.length){
+downloadBtn.addEventListener("click", async () => {
 
-            /*
-             * Primera prueba:
-             * tomar el primer número
-             * encontrado entre 3 y 6 dígitos.
-             */
 
-            numero = numeros[0];
-        }
-    }
+const zip = new JSZip();
 
-    detectedNumber.textContent =
-        numero || "NO DETECTADO";
+for(const item of renamedFiles){
 
-    statusDiv.textContent = "OCR finalizado";
-};
+    zip.file(
+        item.nuevoNombre,
+        item.file
+    );
+
+}
+
+const content =
+    await zip.generateAsync({
+        type:"blob"
+    });
+
+saveAs(
+    content,
+    "renombradas.zip"
+);
 
 
 });
+
+function fileToDataURL(file){
+
+
+return new Promise((resolve,reject)=>{
+
+    const reader =
+        new FileReader();
+
+    reader.onload =
+        e => resolve(e.target.result);
+
+    reader.onerror = reject;
+
+    reader.readAsDataURL(file);
+
+});
+
+
+}
