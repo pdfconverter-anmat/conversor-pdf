@@ -2,65 +2,88 @@
 
 <html lang="es">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>OCR Disposición - Prueba</title>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>OCR Lote ANMAT</title>
+
+<link rel="stylesheet" href="css/ocr_lote.css">
+
+</head>
+
+<body>
+
+<div class="container">
 
 
-        <link rel="stylesheet" href="css/ocr_test.css">
+<h2>OCR Lote - Disposiciones ANMAT</h2>
+
+<div class="toolbar">
+
+    <input
+        type="file"
+        id="imageInput"
+        accept=".jpg,.jpeg"
+        multiple>
+
+    <button id="processBtn">
+        Procesar
+    </button>
+
+    <button id="downloadBtn" disabled>
+        Descargar ZIP
+    </button>
+
+</div>
+
+<div class="status">
+
+    <div>
+        Archivos:
+        <span id="totalFiles">0</span>
+    </div>
+
+    <div>
+        Procesados:
+        <span id="processedFiles">0</span>
+    </div>
+
+</div>
+
+<div class="progress">
+
+    <div id="progressBar"></div>
+
+</div>
+
+<div class="layout">
+
+    <div class="panel">
+
+        <h3>Archivos seleccionados</h3>
+
+        <div id="fileList"></div>
+
+    </div>
+
+    <div class="panel">
+
+        <h3>Resultado OCR</h3>
+
+        <div id="resultList"></div>
+
+    </div>
+
+</div>
 
 
-    </head>
+</div>
 
-    <body>
+<script src="js/ocr_lote.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-        <div class="container">
-
-
-            <h1>OCR Disposición</h1>
-
-            <div class="toolbar">
-                <input type="file" id="imageInput" accept=".jpg,.jpeg,.png">
-
-                <button id="analyzeBtn">
-                    Analizar
-                </button>
-            </div>
-
-            <div class="layout">
-
-                <div class="preview-panel">
-                    <img id="previewImage">
-                </div>
-
-                <div class="result-panel">
-
-                    <div class="card">
-                        <h3>Número sugerido</h3>
-                        <div id="detectedNumber">-</div>
-                    </div>
-
-                    <div class="card">
-                        <h3>Estado</h3>
-                        <div id="status">Esperando imagen...</div>
-                    </div>
-
-                    <div class="card">
-                        <h3>Texto OCR</h3>
-                        <textarea id="ocrText"></textarea>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-        <script src="js/ocr_test.js"></script>
-
-    </body>
-
+</body>
 </html>
