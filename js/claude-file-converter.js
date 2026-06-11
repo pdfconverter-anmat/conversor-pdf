@@ -2,7 +2,7 @@
 const MAX_IMAGE_WIDTH = 2200;
 let selectedFiles = [];
 
-// ==================== MEJORA DE IMAGEN (En hilo principal) ====================
+// ==================== MEJORA DE IMAGEN ====================
 async function improveImage(file) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -24,13 +24,11 @@ async function improveImage(file) {
             let data = ctx.getImageData(0, 0, width, height);
 
             // === ALGORITMO MEJORADO ===
-            // 1. Escala de grises
             for (let i = 0; i < data.data.length; i += 4) {
                 const gray = 0.299 * data.data[i] + 0.587 * data.data[i + 1] + 0.114 * data.data[i + 2];
                 data.data[i] = data.data[i + 1] = data.data[i + 2] = gray;
             }
 
-            // 2. Contraste fuerte + brillo
             let min = 255, max = 0;
             for (let i = 0; i < data.data.length; i += 4) {
                 const v = data.data[i];
@@ -39,18 +37,16 @@ async function improveImage(file) {
             }
             const range = max - min || 1;
             for (let i = 0; i < data.data.length; i += 4) {
-                let v = ((data.data[i] - min) * 260) / range + 8;   // más contraste
+                let v = ((data.data[i] - min) * 260) / range + 8;
                 data.data[i] = data.data[i + 1] = data.data[i + 2] = Math.round(v);
             }
 
-            // 3. Oscurecer texto + aclarar fondo
             for (let i = 0; i < data.data.length; i += 4) {
                 let v = data.data[i];
-                if (v > 80 && v < 220) v = Math.round(v * 0.52);      // texto más negro
+                if (v > 80 && v < 220) v = Math.round(v * 0.52);
                 data.data[i] = data.data[i + 1] = data.data[i + 2] = Math.max(15, v);
             }
 
-            // 4. Sharpness (Unsharp Mask) - Muy importante para documentos
             const copy = new Uint8ClampedArray(data.data);
             for (let y = 1; y < canvas.height - 1; y++) {
                 for (let x = 1; x < canvas.width - 1; x++) {
@@ -63,7 +59,7 @@ async function improveImage(file) {
                     }
                     const avg = sum / 9;
                     const diff = copy[i] - avg;
-                    let val = copy[i] + diff * 2.2;                    // más nitidez
+                    let val = copy[i] + diff * 2.2;
                     data.data[i] = data.data[i + 1] = data.data[i + 2] = 
                         Math.max(0, Math.min(255, Math.round(val)));
                 }
@@ -105,16 +101,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 selectedFiles.push({
                     file,
-                    dispositionNumber: parsed.dispositionNumber,
-                    familia: parsed.familia,
-                    pdfName: parsed.pdfName,
+                    ...parsed,
                     improvedBytes
                 });
 
                 const row = document.createElement('div');
-                row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 3px 4px; border-bottom: 1px solid #2a2a2a;';
+                row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 2px 3px; border-bottom: 1px solid #2a2a2a;';
+                const futurePdfName = generatePDFName(parsed);
                 row.innerHTML = `
-                    <span style="flex: 1;">${parsed.pdfName}</span>
+                    <span style="flex: 2;">${futurePdfName}</span>
                     <button class="btn btn-sm btn-danger" onclick="removeFile('${file.name}')">Eliminar</button>
                 `;
                 selectedFilesBody.appendChild(row);
@@ -133,28 +128,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ==================== AUXILIARES ====================
 function parseFileName(filename) {
-    const regex = /^(\d+)\s+(\d+)\s+([^-]+?)\s*-\s*([^-]+?)\s*-\s*([^.]+?)\.jpg$/i;
+    const regex = /^(\d+)\s+(\d+)\s+([^-]+?)\s*-\s*([^-]+?)\s*-\s*([^.]+)\.jpg$/i;
     const match = filename.match(regex);
     if (!match) return null;
 
-    const toKey = str => str.trim().replace(/\s+/g, '_');
-
-    const dispo   = match[1].trim();
-    const anio    = match[2].trim();
-    const empresa = toKey(match[3]);
-    const tramite = toKey(match[4]);
-    const familia = toKey(match[5]);
-
-    // pdfName NO incluye 'familia' para que todos los archivos del mismo
-    // expediente se agrupen en un único PDF. 'familia' se usa solo para
-    // ordenar las páginas dentro del grupo.
-    const pdfName = `${dispo}-${anio}-${empresa}-${tramite}`;
-
     return {
-        dispositionNumber: dispo,
-        familia,
-        pdfName
+        disposition: match[1].trim(),
+        year: match[2].trim(),
+        company: match[3].trim(),
+        procedure: match[4].trim(),
+        family: match[5].trim()
     };
+}
+
+function normalizeForKey(str) {
+    return str.toUpperCase().replace(/\s+/g, ' ').trim();
+}
+
+function generatePDFName(parsed) {
+    const disp = parsed.disposition;
+    const anio = parsed.year;
+    const empresa = parsed.company.toUpperCase().replace(/\s+/g, '_');
+    const tramite = parsed.procedure.toUpperCase().replace(/\s+/g, '_');
+    const familia = parsed.family.toUpperCase();
+
+    return `${disp}-${anio}-${empresa}-${tramite}-${familia}.pdf`;
 }
 
 function removeFile(filename) {
@@ -164,9 +162,10 @@ function removeFile(filename) {
 
     selectedFiles.forEach(item => {
         const row = document.createElement('div');
-        row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 2px 3px; border-bottom: 1px solid #2a2a2a;';
+        row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 3px 4px; border-bottom: 1px solid #2a2a2a;';
+        const futurePdfName = generatePDFName(item);
         row.innerHTML = `
-            <span style="flex: 1;">${item.pdfName}</span>
+            <span style="flex: 2;">${futurePdfName}</span>
             <button class="btn btn-sm btn-danger" onclick="removeFile('${item.file.name}')">Eliminar</button>
         `;
         tbody.appendChild(row);
@@ -178,8 +177,9 @@ function removeFile(filename) {
 async function convertToPDF() {
     if (selectedFiles.length === 0) return;
 
+    // Agrupar por: disposición + año + empresa + tipo_tramite
     const grouped = selectedFiles.reduce((acc, item) => {
-        const key = item.pdfName;
+        const key = `${item.disposition}|${item.year}|${normalizeForKey(item.company)}|${normalizeForKey(item.procedure)}`;
         if (!acc[key]) acc[key] = [];
         acc[key].push(item);
         return acc;
@@ -188,20 +188,26 @@ async function convertToPDF() {
     const total = Object.keys(grouped).length;
 
     for (const key in grouped) {
-        const group = grouped[key];
+        let group = grouped[key];
+
         const pdfDoc = await PDFLib.PDFDocument.create();
 
-        // Ordenar páginas por familia (campo 5 del nombre de archivo)
-        group.sort((a, b) => a.familia.localeCompare(b.familia));
+        // Ordenar alfabéticamente dentro del grupo
+        group.sort((a, b) => a.file.name.localeCompare(b.file.name));
+
+        // Usar el primer archivo (después de ordenar) para el nombre
+        const pdfName = generatePDFName(group[0]);
 
         for (const item of group) {
             const image = await pdfDoc.embedJpg(item.improvedBytes);
             let { width, height } = image;
+
             if (width > MAX_IMAGE_WIDTH) {
                 const ratio = MAX_IMAGE_WIDTH / width;
                 width = MAX_IMAGE_WIDTH;
                 height = Math.round(height * ratio);
             }
+
             const page = pdfDoc.addPage([width, height]);
             page.drawImage(image, { x: 0, y: 0, width, height });
         }
@@ -210,7 +216,7 @@ async function convertToPDF() {
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `${key}.pdf`;
+        link.download = pdfName;
         link.click();
     }
 
