@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedFiles.push({
                     file,
                     dispositionNumber: parsed.dispositionNumber,
+                    familia: parsed.familia,
                     pdfName: parsed.pdfName,
                     improvedBytes
                 });
@@ -144,10 +145,14 @@ function parseFileName(filename) {
     const tramite = toKey(match[4]);
     const familia = toKey(match[5]);
 
-    const pdfName = `${dispo}-${anio}-${empresa}-${tramite}-${familia}`;
+    // pdfName NO incluye 'familia' para que todos los archivos del mismo
+    // expediente se agrupen en un único PDF. 'familia' se usa solo para
+    // ordenar las páginas dentro del grupo.
+    const pdfName = `${dispo}-${anio}-${empresa}-${tramite}`;
 
     return {
         dispositionNumber: dispo,
+        familia,
         pdfName
     };
 }
@@ -159,7 +164,7 @@ function removeFile(filename) {
 
     selectedFiles.forEach(item => {
         const row = document.createElement('div');
-        row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 3px 4px; border-bottom: 1px solid #2a2a2a;';
+        row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 2px 3px; border-bottom: 1px solid #2a2a2a;';
         row.innerHTML = `
             <span style="flex: 1;">${item.pdfName}</span>
             <button class="btn btn-sm btn-danger" onclick="removeFile('${item.file.name}')">Eliminar</button>
@@ -186,7 +191,8 @@ async function convertToPDF() {
         const group = grouped[key];
         const pdfDoc = await PDFLib.PDFDocument.create();
 
-        group.sort((a, b) => a.file.name.localeCompare(b.file.name));
+        // Ordenar páginas por familia (campo 5 del nombre de archivo)
+        group.sort((a, b) => a.familia.localeCompare(b.familia));
 
         for (const item of group) {
             const image = await pdfDoc.embedJpg(item.improvedBytes);
